@@ -24,6 +24,8 @@ dist/
 Thumbs.db
 .vscode/
 .idea/
+twitch_config.json
+twitch_tokens.json
 
 # Do NOT ignore: python/ directory (portable python)
 # Do NOT ignore: executable of the app
