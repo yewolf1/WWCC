@@ -575,7 +575,7 @@ class App(ctk.CTk):
 
         version = self._tr_label(
             frame,
-            "Version 1.0",
+            "Version 1.1.0",
             text_color=FG_MUTED,
             font=("Segoe UI", 12),
         )
