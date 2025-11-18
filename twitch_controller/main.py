@@ -8,17 +8,13 @@ from twitchAPI.helper import first
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.object.eventsub import ChannelPointsCustomRewardRedemptionAddEvent
 from twitchAPI.type import AuthScope
-
-
 if __package__ is None or __package__ == "":
-    # exécution directe du fichier
     base_dir = os.path.dirname(os.path.abspath(__file__))
     if base_dir not in sys.path:
         sys.path.insert(0, base_dir)
     from config import ensure_config, load_tokens, save_tokens
     from actions import run_action
 else:
-    # import en tant que package
     from .config import ensure_config, load_tokens, save_tokens
     from .actions import run_action
 

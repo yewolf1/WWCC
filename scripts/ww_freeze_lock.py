@@ -4,7 +4,6 @@ import sys
 import time
 import struct
 import sys
-from dolphin_memory_engine import hook, write_bytes
 
 FREEZE_SAFE_VAL = 0.0001
 

@@ -18,7 +18,6 @@ DEFAULT_CONFIG = {
     "client_secret": TWITCH_CLIENT_SECRET,
     "scopes": ["CHANNEL_READ_REDEMPTIONS"],
     "rewards": {
-
         "Kill Link": ["kill"],
 
         "1/4 heart": ["hp", "--quarter"],
@@ -30,21 +29,9 @@ DEFAULT_CONFIG = {
         "Unequip slot Z": ["unequip", "--slot", "z"],
         "Unequip all slots": ["unequip", "--all"],
 
-        "Sword: Cycle": ["sword", "--cycle"],
-        "Sword: Off": ["sword", "--stage", "off"],
-        "Sword: Hero": ["sword", "--stage", "hero"],
-        "Sword: MS1": ["sword", "--stage", "ms1"],
-        "Sword: MS2": ["sword", "--stage", "ms2"],
-        "Sword: MS3": ["sword", "--stage", "ms3"],
-
-        "Shield: Cycle": ["shield", "--cycle"],
-        "Shield: Off": ["shield", "--stage", "off"],
-        "Shield: Hero": ["shield", "--stage", "hero"],
-        "Shield: Mirror": ["shield", "--stage", "mirror"],
-
-        "Tunic: Cycle": ["tunic", "--cycle"],
-        "Tunic: Green": ["tunic", "--stage", "green"],
-        "Tunic: Blue": ["tunic", "--stage", "blue"],
+        "Sword (viewer choice)": ["__sword_choice__"],
+        "Shield (viewer choice)": ["__shield_choice__"],
+        "Tunic (viewer choice)": ["__tunic_choice__"],
 
         "Rupees +50": ["rupees", "--add", "50"],
         "Rupees -50": ["rupees", "--add", "-50"],
@@ -56,19 +43,8 @@ DEFAULT_CONFIG = {
         "Wallet: Tier 2": ["wallet", "--tier", "2"],
         "Wallet: Cycle": ["wallet", "--cycle"],
 
-        "Time: Day": ["time", "--day"],
-        "Time: Night": ["time", "--night"],
-        "Time: Dawn": ["time", "--dawn"],
-        "Time: Dusk": ["time", "--dusk"],
-        "Time: Cycle": ["time", "--cycle"],
-
-        "Weather: Clear": ["weather", "--clear"],
-        "Weather: Cloudy": ["weather", "--cloudy"],
-        "Weather: Rain": ["weather", "--rain"],
-        "Weather: Storm": ["weather", "--storm"],
-        "Weather: Fog": ["weather", "--fog"],
-        "Weather: Tempest": ["weather", "--tempest"],
-        "Weather: Cycle": ["weather", "--cycle"],
+        "Time (viewer choice)": ["__time_choice__"],
+        "Weather (viewer choice)": ["__weather_choice__"],
 
         "Freeze ON": ["freeze", "--on"],
         "Freeze OFF": ["freeze", "--off"],
@@ -76,7 +52,7 @@ DEFAULT_CONFIG = {
         "Freeze 30s": ["freeze", "--timer", "30"],
 
         "Moonjump x1 (10s)": ["moon", "--level", "1", "--timer", "10"],
-        "Moonjump x2 (20s)": ["moon", "--level", "2", "--timer", "20"],
+        "Moonjump x2 (30s)": ["moon", "--level", "2", "--timer", "30"],
         "Moonjump x3 (30s)": ["moon", "--level", "3", "--timer", "30"],
         "Moonjump OFF": ["moon", "--off"],
 
@@ -88,14 +64,18 @@ DEFAULT_CONFIG = {
         "Magic full": ["magic", "--full"],
         "Magic half": ["magic", "--half"],
         "Magic empty": ["magic", "--empty"],
+        "Magic (choice)": ["__magic_choice__"],
 
         "Bombs emptied": ["bombs", "--empty"],
-        "Bombs +10": ["bombs", "--add", "10"],
+        "Bombs +5": ["bombs", "--add", "5"],
         "Arrows emptied": ["arrows", "--empty"],
         "Arrows +10": ["arrows", "--add", "10"],
 
         "Random item removed (10s)": ["item", "--random", "--timer", "10"],
-        "Random item removed (30s)": ["item", "--random", "--timer", "30"]
+        "Random item removed (30s)": ["item", "--random", "--timer", "30"],
+
+        "Remove item (30s)": ["__item_remove__", "30"],
+        "Remove item (60s)": ["__item_remove__", "60"]
     }
 }
 
@@ -107,13 +87,11 @@ def ensure_config():
     with CONFIG_PATH.open("r", encoding="utf-8") as f:
         return json.load(f)
 
-
 def load_tokens():
     if not TOKENS_PATH.exists():
         return None
     with TOKENS_PATH.open("r", encoding="utf-8") as f:
         return json.load(f)
-
 
 def save_tokens(tokens):
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)

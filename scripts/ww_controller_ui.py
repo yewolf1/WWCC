@@ -10,7 +10,7 @@ except ImportError:
     Image = None
     ImageTk = None
 
-from ww_locale import tr, set_lang, get_lang
+from scripts.ww_locale import tr, set_lang, get_lang
 
 BG_MAIN = ("#F3F4F6", "#020617")
 BG_CARD = ("#FFFFFF", "#0F172A")
@@ -429,7 +429,7 @@ class App(ctk.CTk):
             command=self.stop_twitch_listener,
             fg_color=DANGER,
             hover_color=DANGER_HOVER,
-            text_color=FG_MUTED,
+            text_color="#FFFFFF",
             height=28,
             corner_radius=999,
         )
@@ -591,7 +591,7 @@ class App(ctk.CTk):
 
         link = self._tr_label(
             frame,
-            "github.com/yewolf/windwaker-controller",
+            "github.com/yewolf1/WWCC",
             text_color=FG_MUTED,
             font=("Segoe UI", 10, "italic"),
         )
