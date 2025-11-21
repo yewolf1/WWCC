@@ -34,8 +34,9 @@ ADDR = {
     "magic": BASE + 0x003C4C1C,
     "bombs":  BASE + 0x003C4C72,
     "arrows": BASE + 0x003C4C71,
-
-    
+    # "boat_moon": 0x80025170,
+    # "boat_moon_on": 0xEC40102A,
+    # "boat_moon_off": 0xEC401028, 
 }
 
 TIME_ORDER = [180.0, 285.0, 0.0, 105.0]
@@ -131,6 +132,15 @@ FREEZE_ADDRS_DEFAULTS = {
     0x8035D414: 19.0,   # backflip height
     0x8035D28C: 18.0,   # jump slash speed
     0x8035D290: 27.0,   # jump slash height
+}
+
+WAVE_ADDR = 0x803E47D0
+WAVE_LEVELS = {
+    "off": 1.0,      
+    "medium": 100.0,  
+    "big": 400.0,   
+    "freak": 1000.0,
+    "apocalyptic": 10000.0
 }
 
 #######################################################################
@@ -300,6 +310,27 @@ def launch_freeze_timer(seconds):
     print(f"Freeze mouvement lancé pendant {seconds}s (en arrière-plan).")
     
 #######################################################################
+# WAVES
+#######################################################################
+
+def set_wave(mode):
+    ensure()
+    if mode not in WAVE_LEVELS:
+        raise SystemExit("Mode de vagues invalide (off, medium, big, freak)")
+    val = struct.pack(">f", WAVE_LEVELS[mode])
+    write_bytes(WAVE_ADDR, val)
+    print(f"Vagues: {mode} (max={WAVE_LEVELS[mode]})")
+
+def launch_waves_timer(mode, seconds):
+    subprocess.Popen([
+        sys.executable,
+        script("ww_wave_lock.py"),
+        mode,
+        str(int(seconds)),
+    ])
+    print(f"Vagues '{mode}' pendant {seconds}s (en arrière-plan).")
+    
+#######################################################################
 # MOONJUMP
 #######################################################################
     
@@ -443,10 +474,40 @@ def set_hearts(hearts):
     write_byte(ADDR["health_current"], quarters)
     return quarters
 
+#######################################################################
+# BOAT MOONJUMP
+#######################################################################
+
+def boat_moon_write(val):
+    ensure()
+    write_bytes(ADDR["boat_moon"], val.to_bytes(4, "big"))
+
+def boat_moon_on():
+    boat_moon_write(ADDR["boat_moon_on"])
+    print("Moonjump bateau : ON")
+
+def boat_moon_off():
+    boat_moon_write(ADDR["boat_moon_off"])
+    print("Moonjump bateau : OFF")
+
+def launch_boat_moon_timer(seconds):
+    subprocess.Popen([
+        sys.executable,
+        script("ww_boat_moon_lock.py"),
+        str(int(seconds)),
+    ])
+    print(f"Moonjump bateau pendant {seconds}s (en arrière-plan).")
+
     
 #######################################################################
 # CMD METHODS
 #######################################################################
+
+def cmd_waves(mode=None, timer=None):
+    if timer is not None:
+        launch_waves_timer(mode, timer)
+    elif mode is not None:
+        set_wave(mode)
 
 def cmd_hp_quarter():
     q = set_hearts(0.25)
@@ -527,11 +588,22 @@ def cmd_camera(on=False, off=False, timer=None):
     elif timer is not None:
         launch_camera_timer(timer)
 
-def cmd_moon(level=None, timer=None, off=False):
+def cmd_moon(level=None, timer=None, off=False, boat=False):
     ensure()
 
+    # Mode spécial bateau
+    if boat:
+        if off:
+            boat_moon_off()
+            return
+        if timer is not None:
+            launch_boat_moon_timer(timer)
+            return
+        boat_moon_on()
+        return
+
+    # Mode normal (Link)
     if off:
-        # remets le saut normal
         val = struct.pack(">f", 1.5)
         write_bytes(ADDR["jump"], val)
         print("Moonjump OFF (saut normal)")
@@ -829,6 +901,7 @@ def main():
     p_moon.add_argument("--level", type=int, choices=[1, 2, 3])
     p_moon.add_argument("--timer", type=int)
     p_moon.add_argument("--off", action="store_true")
+    # p_moon.add_argument("--boat", action="store_true")
     
     p_camera = sub.add_parser("camera")
     group_cam = p_camera.add_mutually_exclusive_group(required=True)
@@ -855,6 +928,10 @@ def main():
     group_hp.add_argument("--quarter", action="store_true")
     group_hp.add_argument("--three", action="store_true")
     group_hp.add_argument("--set", type=float)
+    
+    p_waves = sub.add_parser("waves")
+    p_waves.add_argument("--mode", choices=["off", "medium", "big", "freak","apocalyptic"], required=True)
+    p_waves.add_argument("--timer", type=int)
 
 
     a = p.parse_args()
@@ -957,6 +1034,8 @@ def main():
             cmd_hp_three()
         elif a.set is not None:
             cmd_hp_set(a.set)
+    elif a.cmd == "waves":
+        cmd_waves(mode=a.mode, timer=a.timer)
         
 if __name__ == "__main__":
     main()

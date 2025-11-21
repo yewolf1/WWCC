@@ -75,7 +75,15 @@ DEFAULT_CONFIG = {
         "Random item removed (30s)": ["item", "--random", "--timer", "30"],
 
         "Remove item (30s)": ["__item_remove__", "30"],
-        "Remove item (60s)": ["__item_remove__", "60"]
+        "Remove item (60s)": ["__item_remove__", "60"],
+        
+        # "Boat Moonjump 20s": ["moon", "--boat", "--timer", "20"],
+        # "Boat Moonjump 40s": ["moon", "--boat", "--timer", "40"],
+        
+        "Sea waves: Off (30s)": ["waves", "--mode", "off",   "--timer", "30"],
+        "Sea waves: Medium (30s)": ["waves", "--mode", "medium", "--timer", "30"],
+        "Sea waves: Big (30s)": ["waves", "--mode", "big",   "--timer", "30"],
+        "Sea waves: Freak (30s)": ["waves", "--mode", "freak", "--timer", "30"],
     }
 }
 

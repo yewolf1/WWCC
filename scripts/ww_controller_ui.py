@@ -62,7 +62,7 @@ if not os.path.exists(ICON_IMG):
     ICON_IMG = resource_path("assets/icon.png")
 if not os.path.exists(ICON_IMG):
     ICON_IMG = resource_path("assets/icon.ico")
-    
+
 TWITCH_IMG = resource_path("assets/twitch_logo.png")
 if not os.path.exists(TWITCH_IMG):
     TWITCH_IMG = resource_path("assets/twitch_logo.ico")
@@ -111,7 +111,6 @@ class App(ctk.CTk):
         super().__init__()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        # widgets traduisibles
         self._tr_widgets = []
 
         self.title(tr("Wind Waker Chaotic Controller"))
@@ -131,8 +130,7 @@ class App(ctk.CTk):
                 )
             except Exception:
                 self.logo_image = None
-                
-        
+
         self.twitch_logo_image = None
         if Image is not None:
             try:
@@ -174,7 +172,6 @@ class App(ctk.CTk):
         self.show_section("items")
 
     def start_twitch_listener(self):
-        # Empêche de lancer deux fois
         if self.twitch_process is not None and self.twitch_process.poll() is None:
             return
 
@@ -189,7 +186,6 @@ class App(ctk.CTk):
             creationflags = CREATE_NO_WINDOW
 
         try:
-            # Utilise ton Python portable (PY)
             self.twitch_process = subprocess.Popen(
                 [PY, twitch_main],
                 creationflags=creationflags,
@@ -211,7 +207,6 @@ class App(ctk.CTk):
     def stop_twitch_listener(self):
         try:
             if self.twitch_process is not None:
-                # Process encore vivant ?
                 if self.twitch_process.poll() is None:
                     self.twitch_process.terminate()
                 self.twitch_process = None
@@ -228,8 +223,7 @@ class App(ctk.CTk):
 
         except Exception as e:
             messagebox.showerror("Twitch", str(e))
-            
-    # ---- helpers pour gérer la traduction ----
+
     def _register_tr_widget(self, widget, key):
         widget._tr_key = key
         self._tr_widgets.append(widget)
@@ -274,8 +268,6 @@ class App(ctk.CTk):
                     widget.configure(text=tr(key))
                 except Exception:
                     pass
-
-    # ---- UI ----
 
     def build_sidebar(self):
         header = ctk.CTkFrame(self.sidebar, fg_color="transparent")
@@ -325,7 +317,6 @@ class App(ctk.CTk):
         )
         theme_switch.pack(side="right")
 
-        # langue
         lang_row = ctk.CTkFrame(self.sidebar, fg_color="transparent")
         lang_row.pack(fill="x", padx=16, pady=(0, 20))
         lang_label = self._tr_label(
@@ -464,7 +455,7 @@ class App(ctk.CTk):
             ctk.set_appearance_mode("light")
         else:
             ctk.set_appearance_mode("dark")
-            
+
     def create_card(self, parent, title_key, description_key=None):
         card = ctk.CTkFrame(parent, fg_color=BG_CARD, corner_radius=14)
         card.pack(fill="x", padx=20, pady=12)
@@ -608,8 +599,6 @@ class App(ctk.CTk):
         close_btn.pack(pady=(22, 0))
 
         win.grab_set()
-
-    # ---- sections ----
 
     def build_items_section(self, parent):
         card_items = self.create_card(
@@ -1308,6 +1297,62 @@ class App(ctk.CTk):
         btn_tempest.grid(row=0, column=1, padx=4, pady=2)
         btn_cycle_w.grid(row=0, column=2, padx=4, pady=2)
 
+        card_waves = self.create_card(
+            parent, "Vagues", "Contrôle l'agitation de la mer."
+        )
+        waves_row = ctk.CTkFrame(card_waves, fg_color="transparent")
+        waves_row.pack(fill="x", padx=14, pady=6)
+
+        self.waves_mode_var = ctk.StringVar(value="medium")
+        combo_mode = ctk.CTkComboBox(
+            waves_row,
+            variable=self.waves_mode_var,
+            values=["off", "medium", "big", "freak", "apocalyptic"],
+            width=120,
+            fg_color=BG_MAIN,
+            text_color=FG_TEXT,
+            button_color=ACCENT,
+            button_hover_color=ACCENT_HOVER,
+        )
+        combo_mode.grid(row=0, column=0, padx=4, pady=2)
+
+        label_wt = self._tr_label(
+            waves_row,
+            "Timer (s)",
+            text_color=FG_TEXT,
+        )
+        label_wt.grid(row=0, column=1, padx=4)
+
+        self.waves_timer_var = ctk.StringVar(value="30")
+        entry_wt = ctk.CTkEntry(
+            waves_row,
+            textvariable=self.waves_timer_var,
+            width=80,
+            fg_color=BG_MAIN,
+            text_color=FG_TEXT,
+        )
+        entry_wt.grid(row=0, column=2, padx=4)
+
+        btn_waves_now = self._tr_button(
+            waves_row,
+            "Appliquer",
+            fg_color=BTN_DEFAULT,
+            hover_color=BTN_DEFAULT_HOVER,
+            text_color=FG_TEXT,
+            command=self.on_waves_apply,
+        )
+        btn_waves_now.grid(row=0, column=3, padx=4)
+
+        btn_waves_timer = self._tr_button(
+            waves_row,
+            "Appliquer X sec",
+            fg_color=BTN_DEFAULT,
+            hover_color=BTN_DEFAULT_HOVER,
+            text_color=FG_TEXT,
+            command=self.on_waves_timer,
+        )
+        btn_waves_timer.grid(row=0, column=4, padx=4)
+
     def build_effects_section(self, parent):
         card_freeze = self.create_card(
             parent, "Freeze mouvement", "Fige ou ralentit fortement les déplacements."
@@ -1425,6 +1470,59 @@ class App(ctk.CTk):
             command=self.on_moon_off,
         )
         btn_moon_off.grid(row=0, column=3, padx=4)
+
+        # card_boat_moon = self.create_card(
+        #     parent, "Moonjump bateau", "Affecte uniquement les sauts en bateau."
+        # )
+        # brow = ctk.CTkFrame(card_boat_moon, fg_color="transparent")
+        # brow.pack(fill="x", padx=14, pady=6)
+
+        # btn_boat_on = self._tr_button(
+        #     brow,
+        #     "Activer",
+        #     fg_color=BTN_DEFAULT,
+        #     hover_color=BTN_DEFAULT_HOVER,
+        #     text_color=FG_TEXT,
+        #     command=self.on_boat_moon_on,
+        # )
+        # btn_boat_on.grid(row=0, column=0, padx=4)
+
+        # label_bmt = self._tr_label(
+        #     brow,
+        #     "Timer (s)",
+        #     text_color=FG_TEXT,
+        # )
+        # label_bmt.grid(row=0, column=1, padx=4)
+
+        # self.boat_moon_timer_var = ctk.StringVar(value="20")
+        # entry_bmt = ctk.CTkEntry(
+        #     brow,
+        #     textvariable=self.boat_moon_timer_var,
+        #     width=80,
+        #     fg_color=BG_MAIN,
+        #     text_color=FG_TEXT,
+        # )
+        # entry_bmt.grid(row=0, column=2, padx=4)
+
+        # btn_boat_timer = self._tr_button(
+        #     brow,
+        #     "Activer X sec",
+        #     fg_color=BTN_DEFAULT,
+        #     hover_color=BTN_DEFAULT_HOVER,
+        #     text_color=FG_TEXT,
+        #     command=self.on_boat_moon_timer,
+        # )
+        # btn_boat_timer.grid(row=0, column=3, padx=4)
+
+        # btn_boat_off = self._tr_button(
+        #     brow,
+        #     "OFF",
+        #     fg_color=BTN_DEFAULT,
+        #     hover_color=BTN_DEFAULT_HOVER,
+        #     text_color=FG_TEXT,
+        #     command=self.on_boat_moon_off,
+        # )
+        # btn_boat_off.grid(row=0, column=4, padx=4)
 
         card_camera = self.create_card(
             parent, "Caméra", "Fixe la caméra ou lance un verrouillage temporaire."
@@ -1567,8 +1665,6 @@ class App(ctk.CTk):
         )
         btn_list.grid(row=0, column=0, padx=4, pady=4)
 
-    # ---- actions ----
-
     def on_item_add(self):
         item = self.item_var.get()
         run_cmd(["item", "--add", item])
@@ -1583,7 +1679,9 @@ class App(ctk.CTk):
         item = self.item_var.get()
         seconds = self.item_timer_var.get() or "10"
         run_cmd(["item", "--remove", item, "--timer", seconds])
-        self.set_status(tr("Retiré {item} pendant {seconds}s").format(item=item, seconds=seconds))
+        self.set_status(
+            tr("Retiré {item} pendant {seconds}s").format(item=item, seconds=seconds)
+        )
 
     def on_item_random_timer(self):
         seconds = self.random_timer_var.get() or "10"
@@ -1720,6 +1818,19 @@ class App(ctk.CTk):
             run_cmd(["weather", f"--{mode}"])
             self.set_status(tr("Météo: {mode}").format(mode=mode))
 
+    def on_waves_apply(self):
+        mode_val = self.waves_mode_var.get()
+        run_cmd(["waves", "--mode", mode_val])
+        self.set_status(tr("Vagues: {mode}").format(mode=mode_val))
+
+    def on_waves_timer(self):
+        mode_val = self.waves_mode_var.get()
+        sec = self.waves_timer_var.get() or "30"
+        run_cmd(["waves", "--mode", mode_val, "--timer", sec])
+        self.set_status(
+            tr("Vagues: {mode} pendant {seconds}s").format(mode=mode_val, seconds=sec)
+        )
+
     def on_freeze_on(self):
         run_cmd(["freeze", "--on"])
         self.set_status(tr("Freeze mouvement: ON"))
@@ -1743,12 +1854,29 @@ class App(ctk.CTk):
         sec = self.moon_timer_var.get() or "10"
         run_cmd(["moon", "--level", lvl, "--timer", sec])
         self.set_status(
-            tr("Moonjump niveau {level} pendant {seconds}s").format(level=lvl, seconds=sec)
+            tr("Moonjump niveau {level} pendant {seconds}s").format(
+                level=lvl, seconds=sec
+            )
         )
 
     def on_moon_off(self):
         run_cmd(["moon", "--off"])
         self.set_status(tr("Moonjump OFF"))
+
+    def on_boat_moon_on(self):
+        run_cmd(["moon", "--boat"])
+        self.set_status(tr("Moonjump bateau ON"))
+
+    def on_boat_moon_timer(self):
+        sec = self.boat_moon_timer_var.get() or "20"
+        run_cmd(["moon", "--boat", "--timer", sec])
+        self.set_status(
+            tr("Moonjump bateau pendant {seconds}s").format(seconds=sec)
+        )
+
+    def on_boat_moon_off(self):
+        run_cmd(["moon", "--boat", "--off"])
+        self.set_status(tr("Moonjump bateau OFF"))
 
     def on_camera_on(self):
         run_cmd(["camera", "--on"])
@@ -1802,13 +1930,12 @@ class App(ctk.CTk):
             text.insert("1.0", out)
             text.configure(state="disabled")
             win.grab_set()
-            
+
     def on_close(self):
         try:
             self.stop_twitch_listener()
         except Exception:
             pass
-        # Puis on ferme l'app
         self.destroy()
 
 

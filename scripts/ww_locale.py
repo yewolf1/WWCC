@@ -328,6 +328,18 @@ _STRINGS = {
         "fr": "Déconnexion Twitch",
         "en": "Disconnect Twitch",
     },
+    
+    "Vagues": {"fr": "Vagues", "en": "Waves"},
+    "Contrôle l'agitation de la mer.": {
+        "fr": "Contrôle l'agitation de la mer.",
+        "en": "Control of the waves in the sea.",
+    },
+    
+    "off": {"fr": "off", "en": "off"},
+    "medium": {"fr": "Moyen", "en": "Medium"},
+    "big": {"fr": "Grosses Vagues", "en": "Big"},
+    "freak": {"fr": "Incontrôlables", "en": "Freak"},
+    "apocalyptic": {"fr": "Apocaliptiques", "en": "Apocalyptic"},
 }
 
 
