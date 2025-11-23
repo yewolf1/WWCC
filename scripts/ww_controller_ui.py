@@ -34,7 +34,7 @@ CREATE_NO_WINDOW = 0
 
 PY = r".\python\python.exe"
 CMD = r".\scripts\ww_items_ntscu.py"
-
+OVERLAY_SCRIPT = r".\scripts\ww_overlay.py"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -106,6 +106,7 @@ def run_cmd(args, capture=False):
 class App(ctk.CTk):
     def __init__(self):
         self.twitch_process = None
+        self.overlay_process = None
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
         super().__init__()
@@ -223,6 +224,40 @@ class App(ctk.CTk):
 
         except Exception as e:
             messagebox.showerror("Twitch", str(e))
+            
+    def start_overlay_process(self):
+        # évite d’ouvrir 15 overlays
+        if self.overlay_process is not None:
+            try:
+                if self.overlay_process.poll() is None:
+                    return
+            except Exception:
+                pass
+
+        creationflags = 0
+        if sys.platform.startswith("win") and hasattr(subprocess, "CREATE_NO_WINDOW"):
+            creationflags = CREATE_NO_WINDOW
+
+        # Choix de l'interpréteur Python pour l'overlay
+        if getattr(sys, "frozen", False):
+            # Depuis l'EXE PyInstaller -> on utilise le launcher système
+            python_cmd = ["py", "-3.11"]
+        else:
+            # Depuis les sources -> on réutilise l'interpréteur courant
+            python_cmd = [sys.executable]
+
+        try:
+            self.overlay_process = subprocess.Popen(
+                python_cmd + [OVERLAY_SCRIPT],
+                creationflags=creationflags,
+            )
+        except FileNotFoundError:
+            messagebox.showerror(
+                tr("Overlay"),
+                tr("Impossible de lancer l'overlay (Python 3.11 introuvable)."),
+            )
+        except Exception as e:
+            messagebox.showerror(tr("Overlay"), str(e))
 
     def _register_tr_widget(self, widget, key):
         widget._tr_key = key
@@ -426,6 +461,18 @@ class App(ctk.CTk):
         )
         self.twitch_stop_button.pack(fill="x", pady=(6, 0))
         self.twitch_stop_button.configure(state="disabled")
+        
+        self.overlay_button = self._tr_button(
+            btn_row,
+            "Overlay Twitch",
+            command=self.start_overlay_process,
+            fg_color=BTN_DEFAULT,
+            hover_color=BTN_DEFAULT_HOVER,
+            text_color=FG_TEXT,
+            height=28,
+            corner_radius=999,
+        )
+        self.overlay_button.pack(fill="x", pady=(6, 0))
 
         about_btn = self._tr_button(
             self.sidebar,
@@ -1934,6 +1981,12 @@ class App(ctk.CTk):
     def on_close(self):
         try:
             self.stop_twitch_listener()
+        except Exception:
+            pass
+        try:
+            if self.overlay_process is not None:
+                if self.overlay_process.poll() is None:
+                    self.overlay_process.terminate()
         except Exception:
             pass
         self.destroy()

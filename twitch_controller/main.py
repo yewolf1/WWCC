@@ -64,14 +64,16 @@ async def run():
         try:
             title = event.event.reward.title
             user_input = event.event.user_input
+            user_name = event.event.user_name      # pseudo affiché
         except AttributeError:
             data = event.to_dict()
             ev = data.get("event", {})
             reward = ev.get("reward", {})
             title = reward.get("title", "")
             user_input = ev.get("user_input", "")
-        print("Reward:", title, "/", user_input)
-        run_action(title, user_input, config)
+            user_name = ev.get("user_name") or ev.get("user_login") or ""
+        print("Reward:", title, "/", user_input, "/", user_name)
+        run_action(title, user_input, user_name, config)
 
     eventsub.start()
     await eventsub.listen_channel_points_custom_reward_redemption_add(user_id, on_redeem)

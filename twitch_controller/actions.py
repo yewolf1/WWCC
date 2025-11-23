@@ -1,9 +1,12 @@
+import json
 import subprocess
 import sys
 from pathlib import Path
+import time
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 WW_ITEMS = BASE_DIR / "scripts" / "ww_items_ntscu.py"
+OVERLAY_STATE = BASE_DIR / "scripts" / "overlay_state.json"
 
 
 def _norm(s):
@@ -265,7 +268,7 @@ def _resolve_item_remove(args_cfg, user_input):
     return ["item", "--remove", stage, "--timer", str(seconds)]
 
 
-def _build_args(args_cfg, reward_title, user_input):
+def _build_args(args_cfg, user_input):
     if not args_cfg:
         return None
     marker = args_cfg[0]
@@ -291,29 +294,103 @@ def _build_args(args_cfg, reward_title, user_input):
         else:
             final.append(str(a))
     return final
-
-
-def run_action(reward_title, user_input, config):
+    
+def run_action(reward_title, user_input, user_name, config):
     mapping = config.get("rewards", {})
-    reward_title_l = (reward_title or "").lower()
+
+    label = reward_title or ""
+    key = label.lower()
+    print(f"{user_name} a utilisé la reward '{reward_title}' avec input '{user_input}'")
+
     args_cfg = None
     for name, args in mapping.items():
-        if name.lower() == reward_title_l:
+        if name.lower() == key:
             args_cfg = args
             break
+
     if args_cfg is None:
-        print("Récompense non configurée:", reward_title)
+        print("Reward non mappée:", key)
         return
-    final_args = _build_args(args_cfg, reward_title, user_input)
+    
+    final_args = _build_args(args_cfg, user_input)
     if not final_args:
         print("Arguments invalides pour", reward_title, "/", user_input)
         return
+
     if not WW_ITEMS.exists():
         print("ww_items_ntscu.py introuvable:", WW_ITEMS)
         return
+
+    _push_overlay_event(label, user_input, user_name, final_args)
+
     creationflags = 0
     if sys.platform.startswith("win") and hasattr(subprocess, "CREATE_NO_WINDOW"):
         creationflags = subprocess.CREATE_NO_WINDOW
+
     cmd = [sys.executable, str(WW_ITEMS)] + final_args
-    print("[CMD]", cmd)
     subprocess.Popen(cmd, creationflags=creationflags)
+    
+def _extract_timer(args):
+    for i, a in enumerate(args):
+        if a == "--timer" and i + 1 < len(args):
+            try:
+                return int(args[i + 1])
+            except ValueError:
+                return None
+    return None
+
+
+def _push_overlay_event(label, user_input, user_name, args):
+    # On regarde s'il y a un --timer dans les args
+    duration = _extract_timer(args)
+
+    if duration is None or duration <= 0:
+        # Pas de timer → on affiche quand même l'effet
+        # mais avec une durée de vie par défaut (5s)
+        duration = 5
+
+    now = time.time()
+    events = _load_overlay_events()
+
+    ev = {
+        "label": label,
+        "viewer": user_name or "Undefined",
+        "user_input": user_input or "Undefined",
+        "duration": int(duration),
+        "created_at": now,
+        "expires_at": now + int(duration),
+    }
+    events.append(ev)
+    events.sort(key=lambda e: e.get("expires_at", 0))
+    _save_overlay_events(events)
+
+def _load_overlay_events():
+    if not OVERLAY_STATE.exists():
+        return []
+    try:
+        raw = OVERLAY_STATE.read_text(encoding="utf-8")
+        if not raw.strip():
+            return []
+        data = json.loads(raw)
+        if not isinstance(data, list):
+            return []
+    except Exception:
+        return []
+    now = time.time()
+    active = []
+    for e in data:
+        expires = e.get("expires_at", 0)
+        if isinstance(expires, (int, float)) and expires > now:
+            active.append(e)
+    active.sort(key=lambda e: e.get("expires_at", 0))
+    return active
+
+def _save_overlay_events(events):
+    try:
+        OVERLAY_STATE.write_text(
+            json.dumps(events, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    except Exception:
+        pass
+

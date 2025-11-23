@@ -399,7 +399,7 @@ def get_magic_max():
 
     if cur > 16:
         return 32
-    elif cur > 0:
+    elif cur > 0 and cur > 15:
         return 16
     else:
         return 32

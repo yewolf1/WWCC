@@ -340,6 +340,21 @@ _STRINGS = {
     "big": {"fr": "Grosses Vagues", "en": "Big"},
     "freak": {"fr": "Incontrôlables", "en": "Freak"},
     "apocalyptic": {"fr": "Apocaliptiques", "en": "Apocalyptic"},
+    
+    "Effets actifs": {"fr": "Effets actifs", "en": "Active effects"},
+    "Aucun effet actif": {"fr": "Aucun effet actif", "en": "No active effect"},
+    "Overlay Twitch": {
+        "fr": "Overlay Twitch",
+        "en": "Twitch overlay",
+    },
+    "Effets actifs": {
+        "fr": "Effets actifs",
+        "en": "Active effects",
+    },
+    "Aucun effet actif": {
+        "fr": "Aucun effet actif",
+        "en": "No active effect",
+    },
 }
 
 
