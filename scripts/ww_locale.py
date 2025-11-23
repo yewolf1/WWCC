@@ -355,6 +355,216 @@ _STRINGS = {
         "fr": "Aucun effet actif",
         "en": "No active effect",
     },
+     # Récompenses Twitch (twitch_config.json)
+    "Kill Link": {
+        "fr": "Tuer Link",
+        "en": "Kill Link",
+    },
+    "1/4 heart": {
+        "fr": "1/4 de cœur",
+        "en": "1/4 heart",
+    },
+    "3 hearts": {
+        "fr": "3 cœurs",
+        "en": "3 hearts",
+    },
+    "Set HP to 10 hearts": {
+        "fr": "Vie à 10 cœurs",
+        "en": "Set HP to 10 hearts",
+    },
+
+    "Unequip slot X": {
+        "fr": "Déséquiper slot X",
+        "en": "Unequip slot X",
+    },
+    "Unequip slot Y": {
+        "fr": "Déséquiper slot Y",
+        "en": "Unequip slot Y",
+    },
+    "Unequip slot Z": {
+        "fr": "Déséquiper slot Z",
+        "en": "Unequip slot Z",
+    },
+    "Unequip all slots": {
+        "fr": "Déséquiper tous les slots",
+        "en": "Unequip all slots",
+    },
+
+    "Sword (viewer choice)": {
+        "fr": "Épée (choix du viewer)",
+        "en": "Sword (viewer choice)",
+    },
+    "Shield (viewer choice)": {
+        "fr": "Bouclier (choix du viewer)",
+        "en": "Shield (viewer choice)",
+    },
+    "Tunic (viewer choice)": {
+        "fr": "Tunique (choix du viewer)",
+        "en": "Tunic (viewer choice)",
+    },
+
+    "Rupees +50": {
+        "fr": "Rubis +50",
+        "en": "Rupees +50",
+    },
+    "Rupees -50": {
+        "fr": "Rubis -50",
+        "en": "Rupees -50",
+    },
+    "Rupees set to 0": {
+        "fr": "Rubis mis à 0",
+        "en": "Rupees set to 0",
+    },
+    "Rupees max wallet": {
+        "fr": "Rubis : portefeuille max",
+        "en": "Rupees max wallet",
+    },
+
+    "Wallet: Tier 0": {
+        "fr": "Portefeuille : palier 0",
+        "en": "Wallet: Tier 0",
+    },
+    "Wallet: Tier 1": {
+        "fr": "Portefeuille : palier 1",
+        "en": "Wallet: Tier 1",
+    },
+    "Wallet: Tier 2": {
+        "fr": "Portefeuille : palier 2",
+        "en": "Wallet: Tier 2",
+    },
+    "Wallet: Cycle": {
+        "fr": "Portefeuille : cycle",
+        "en": "Wallet: Cycle",
+    },
+
+    "Time (viewer choice)": {
+        "fr": "Heure (choix du viewer)",
+        "en": "Time (viewer choice)",
+    },
+    "Weather (viewer choice)": {
+        "fr": "Météo (choix du viewer)",
+        "en": "Weather (viewer choice)",
+    },
+
+    "Freeze ON": {
+        "fr": "Freeze ON",
+        "en": "Freeze ON",
+    },
+    "Freeze OFF": {
+        "fr": "Freeze OFF",
+        "en": "Freeze OFF",
+    },
+    "Freeze 10s": {
+        "fr": "Freeze 10 s",
+        "en": "Freeze 10s",
+    },
+    "Freeze 30s": {
+        "fr": "Freeze 30 s",
+        "en": "Freeze 30s",
+    },
+
+    "Moonjump x1 (10s)": {
+        "fr": "Moonjump x1 (10s)",
+        "en": "Moonjump x1 (10s)",
+    },
+    "Moonjump x2 (30s)": {
+        "fr": "Moonjump x2 (30s)",
+        "en": "Moonjump x2 (30s)",
+    },
+    "Moonjump x3 (30s)": {
+        "fr": "Moonjump x3 (30s)",
+        "en": "Moonjump x3 (30s)",
+    },
+    "Moonjump OFF": {
+        "fr": "Moonjump OFF",
+        "en": "Moonjump OFF",
+    },
+
+    "Camera lock ON": {
+        "fr": "Verrouillage caméra ON",
+        "en": "Camera lock ON",
+    },
+    "Camera lock OFF": {
+        "fr": "Verrouillage caméra OFF",
+        "en": "Camera lock OFF",
+    },
+    "Camera lock 10s": {
+        "fr": "Verrouillage caméra 10s",
+        "en": "Camera lock 10s",
+    },
+    "Camera lock 30s": {
+        "fr": "Verrouillage caméra 30s",
+        "en": "Camera lock 30s",
+    },
+
+    "Magic full": {
+        "fr": "Magie pleine",
+        "en": "Magic full",
+    },
+    "Magic half": {
+        "fr": "Magie à moitié",
+        "en": "Magic half",
+    },
+    "Magic empty": {
+        "fr": "Magie vide",
+        "en": "Magic empty",
+    },
+    "Magic (choice)": {
+        "fr": "Magie (choix)",
+        "en": "Magic (choice)",
+    },
+
+    "Bombs emptied": {
+        "fr": "Bombes vidées",
+        "en": "Bombs emptied",
+    },
+    "Bombs +5": {
+        "fr": "Bombes +5",
+        "en": "Bombs +5",
+    },
+
+    "Arrows emptied": {
+        "fr": "Flèches vidées",
+        "en": "Arrows emptied",
+    },
+    "Arrows +10": {
+        "fr": "Flèches +10",
+        "en": "Arrows +10",
+    },
+
+    "Random item removed (10s)": {
+        "fr": "Item aléatoire retiré (10s)",
+        "en": "Random item removed (10s)",
+    },
+    "Random item removed (30s)": {
+        "fr": "Item aléatoire retiré (30s)",
+        "en": "Random item removed (30s)",
+    },
+    "Remove item (30s)": {
+        "fr": "Retirer un item (30s)",
+        "en": "Remove item (30s)",
+    },
+    "Remove item (60s)": {
+        "fr": "Retirer un item (60s)",
+        "en": "Remove item (60s)",
+    },
+
+    "Sea waves: Off (30s)": {
+        "fr": "Vagues : off (30s)",
+        "en": "Sea waves: Off (30s)",
+    },
+    "Sea waves: Medium (30s)": {
+        "fr": "Vagues : medium (30s)",
+        "en": "Sea waves: Medium (30s)",
+    },
+    "Sea waves: Big (30s)": {
+        "fr": "Vagues : grosses (30s)",
+        "en": "Sea waves: Big (30s)",
+    },
+    "Sea waves: Freak (30s)": {
+        "fr": "Vagues : incontrôlables (30s)",
+        "en": "Sea waves: Freak (30s)",
+    },
 }
 
 

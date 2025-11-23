@@ -238,18 +238,20 @@ class App(ctk.CTk):
         if sys.platform.startswith("win") and hasattr(subprocess, "CREATE_NO_WINDOW"):
             creationflags = CREATE_NO_WINDOW
 
-        # Choix de l'interpréteur Python pour l'overlay
         if getattr(sys, "frozen", False):
-            # Depuis l'EXE PyInstaller -> on utilise le launcher système
             python_cmd = ["py", "-3.11"]
         else:
-            # Depuis les sources -> on réutilise l'interpréteur courant
             python_cmd = [sys.executable]
 
+        env = os.environ.copy()
+        env["WW_LANG"] = get_lang()
+        current_mode = ctk.get_appearance_mode().lower()  
+        env["WW_THEME"] = current_mode
         try:
             self.overlay_process = subprocess.Popen(
                 python_cmd + [OVERLAY_SCRIPT],
                 creationflags=creationflags,
+                env=env,
             )
         except FileNotFoundError:
             messagebox.showerror(
@@ -613,7 +615,7 @@ class App(ctk.CTk):
 
         version = self._tr_label(
             frame,
-            "Version 1.1.0",
+            "Version 1.3.0",
             text_color=FG_MUTED,
             font=("Segoe UI", 12),
         )

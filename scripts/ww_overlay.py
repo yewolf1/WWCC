@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from pathlib import Path
 
@@ -9,128 +10,174 @@ from ww_locale import tr
 BASE_DIR = Path(__file__).resolve().parent
 OVERLAY_STATE = BASE_DIR / "overlay_state.json"
 
+# Couleurs Light / Dark (comme ton UI principale)
+BG_MAIN = ("#F3F4F6", "#020617")
+BG_CARD = ("#FFFFFF", "#0F172A")
+FG_TEXT = ("#111827", "#E5E7EB")
+VIEWER_COLOR = ("#7C3AED", "#C4B5FD")  # pseudo façon Twitch
+
 
 class OverlayApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-
         self.title("WW Twitch Overlay")
-        self.geometry("450x200+100+100")
+
+        # Taille & position
+        self.geometry("280x450+100+100")
         self.attributes("-topmost", True)
         self.attributes("-alpha", 0.9)
 
-        ctk.set_appearance_mode("dark")
+        # Thème reçu de l'appli principale (WW_THEME = "light" / "dark")
+        theme = os.getenv("WW_THEME", "dark").lower()
+        if theme in ("light", "clair"):
+            ctk.set_appearance_mode("light")
+        else:
+            ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
 
-        self.configure(fg_color="#000000")
+        # Fond global
+        self.configure(fg_color=BG_MAIN)
 
-        self.container = ctk.CTkFrame(self, fg_color="#000000")
+        self.container = ctk.CTkFrame(self, fg_color=BG_MAIN)
         self.container.pack(fill="both", expand=True, padx=8, pady=8)
 
         self.title_label = ctk.CTkLabel(
             self.container,
-            text=tr("Aucun effet actif"),
+            text=tr("Effets actifs"),
             font=("Segoe UI", 18, "bold"),
-            anchor="w",
+            text_color=FG_TEXT,
         )
         self.title_label.pack(anchor="w", pady=(0, 4))
 
-        self.effects_frame = ctk.CTkFrame(self.container, fg_color="#0F172A")
-        self.effects_frame.pack(fill="both", expand=True)
+        # Zone qui contient les "cartes" d'effets
+        self.effects_frame = ctk.CTkFrame(self.container, fg_color="transparent")
+        self.effects_frame.pack(fill="both", expand=True, padx=2, pady=2)
 
-        self.effect_labels = []
-        for _ in range(4):
-            lbl = ctk.CTkLabel(
-                self.effects_frame,
-                text="",
-                font=("Segoe UI", 16, "bold"),
-                anchor="w",
-                justify="left",
-            )
-            lbl.pack(fill="x", padx=8, pady=2)
-            self.effect_labels.append(lbl)
+        self.rows = []
+        self._build_effect_rows(5)  # max 5 logs affichés
 
         self._tick()
 
-    # ------------------ DATA ------------------
+    def _build_effect_rows(self, count: int):
+        for child in self.effects_frame.winfo_children():
+            child.destroy()
+        self.rows.clear()
+
+        for _ in range(count):
+            # Carte pour UN log
+            card = ctk.CTkFrame(
+                self.effects_frame,
+                fg_color=BG_CARD,
+                corner_radius=12,
+            )
+
+            user_lbl = ctk.CTkLabel(
+                card,
+                text="",
+                font=("Segoe UI", 13, "bold"),
+                text_color=VIEWER_COLOR,
+                anchor="w",
+                justify="left",
+            )
+            user_lbl.pack(fill="x", anchor="w", padx=10, pady=(6, 0))
+
+            msg_lbl = ctk.CTkLabel(
+                card,
+                text="",
+                font=("Segoe UI", 14),
+                text_color=FG_TEXT,
+                anchor="w",
+                justify="left",
+            )
+            msg_lbl.pack(fill="x", anchor="w", padx=10, pady=(2, 6))
+
+            self.rows.append(
+                {
+                    "frame": card,
+                    "user": user_lbl,
+                    "msg": msg_lbl,
+                }
+            )
 
     def _load_state(self):
-        """Lit scripts/overlay_state.json et renvoie une liste d'effets actifs."""
-        try:
-            if not OVERLAY_STATE.exists():
-                print("Overlay: fichier inexistant:", OVERLAY_STATE)
-                return []
-
-            raw = OVERLAY_STATE.read_text(encoding="utf-8")
-            if not raw.strip():
-                print("Overlay: fichier vide")
-                return []
-
-            data = json.loads(raw)
-            if not isinstance(data, list):
-                print("Overlay: JSON n'est pas une liste ->", type(data))
-                return []
-
-            now = time.time()
-            active = []
-            for e in data:
-                try:
-                    expires = float(e.get("expires_at", 0))
-                except (TypeError, ValueError):
-                    continue
-                if expires > now:
-                    active.append(e)
-
-            active.sort(key=lambda e: e.get("expires_at", 0))
-            print(f"Overlay: {len(active)} effet(s) actif(s)")
-            return active
-        except Exception as e:
-            print("Overlay load error:", repr(e))
+        if not OVERLAY_STATE.exists():
             return []
 
-    def _format_effect_text(self, event, now):
-        label = (event.get("label") or "").strip()
+        try:
+            raw = OVERLAY_STATE.read_text(encoding="utf-8")
+            if not raw.strip():
+                return []
+            data = json.loads(raw)
+        except Exception:
+            return []
+
+        now = time.time()
+        # Garder uniquement les effets dont le timer n'est pas fini
+        active = [e for e in data if e.get("expires_at", 0) > now]
+
+        # Style chat : derniers reçus en premier
+        active.sort(key=lambda e: e.get("created_at", 0), reverse=True)
+        return active
+
+    def _format_effect_parts(self, event, now):
+        raw_label = (event.get("label") or "").strip()
         user_input = (event.get("user_input") or "").strip()
         viewer = (event.get("viewer") or "").strip()
+
         duration = int(event.get("duration", 0))
         expires_at = event.get("expires_at", now)
         remaining = max(0, int(round(expires_at - now)))
 
-        # 1ère ligne : "<viewer>: <label> (Xs)" ou juste "<label> (Xs)"
-        base = label or tr("Effet inconnu")
-        # si le nom de la reward contient déjà une durée entre parenthèses
-        if duration > 0 and "(" not in base:
-            base += f" ({remaining}s)"
+        label = tr(raw_label) if raw_label else ""
+        effect_text = label or raw_label
 
-        if viewer:
-            line1 = f"{viewer}: {base}"
-        else:
-            line1 = base
+        if duration > 0 and effect_text:
+            if "(" not in effect_text:
+                effect_text += f" ({remaining}s)"
+            else:
+                effect_text += f" ({remaining}s)"
 
-        # 2e ligne : le message saisi (si utile)
-        # on ignore les trucs du style "Undefined"
+        message_lines = []
+        if effect_text:
+            message_lines.append(effect_text)
+
         if user_input and user_input.lower() != "undefined":
-            return f"{line1}\n{user_input}"
+            message_lines.append(user_input)
 
-        return line1
+        message_text = "\n".join(message_lines)
+        username_text = viewer
 
-    # ------------------ RENDER ------------------
+        if not username_text and not message_text:
+            message_text = tr("Effet inconnu")
+
+        return username_text, message_text
 
     def _tick(self):
         now = time.time()
         events = self._load_state()
+        nb = min(len(events), len(self.rows))
 
-        for i, lbl in enumerate(self.effect_labels):
-            if i < len(events):
-                text = self._format_effect_text(events[i], now)
-                lbl.configure(text=text)
-            else:
-                lbl.configure(text="")
-
-        if events:
-            self.title_label.configure(text=tr("Effets actifs"))
-        else:
+        if nb == 0:
             self.title_label.configure(text=tr("Aucun effet actif"))
+        else:
+            self.title_label.configure(text=f"{tr('Effets actifs')} ({nb})")
+
+        for idx, row in enumerate(self.rows):
+            frame = row["frame"]
+            user_lbl = row["user"]
+            msg_lbl = row["msg"]
+
+            if idx < nb:
+                username, message = self._format_effect_parts(events[idx], now)
+                if not frame.winfo_manager():
+                    frame.pack(fill="x", padx=4, pady=4)
+                user_lbl.configure(text=username)
+                msg_lbl.configure(text=message)
+            else:
+                if frame.winfo_manager():
+                    frame.pack_forget()
+                user_lbl.configure(text="")
+                msg_lbl.configure(text="")
 
         self.after(200, self._tick)
 
