@@ -565,6 +565,10 @@ _STRINGS = {
         "fr": "Vagues : incontrôlables (30s)",
         "en": "Sea waves: Freak (30s)",
     },
+    "Sea waves (viewer choice)": {
+        "fr": "Vagues (choix du viewer)",
+        "en": "Sea waves (viewer choice)",
+    },
 }
 
 

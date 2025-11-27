@@ -147,6 +147,58 @@ def _resolve_magic(user_input):
 
     return ["magic", f"--{stage}"]
 
+def _resolve_waves(args_cfg, user_input):
+    raw = _norm(user_input)
+    if not raw:
+        return None
+
+    key = raw.replace(" ", "_")
+
+    aliases = {
+        # off
+        "off": "off",
+        "none": "off",
+        "aucune": "off",
+        "calme": "off",
+
+        # medium
+        "medium": "medium",
+        "moyen": "medium",
+        "moyennes": "medium",
+
+        # big
+        "big": "big",
+        "grosses": "big",
+        "grosses_vagues": "big",
+        "grandes_vagues": "big",
+
+        # freak
+        "freak": "freak",
+        "incontrolables": "freak",
+        "incontrôlables": "freak",
+        "incontrolable": "freak",
+        "incontrôlable": "freak",
+
+        # apocalyptic
+        "apocalyptic": "apocalyptic",
+        "apocaliptique": "apocalyptic",
+        "apocalyptique": "apocalyptic",
+        "apocalyptiques": "apocalyptic",
+    }
+
+    mode = aliases.get(key)
+    if not mode:
+        return None
+
+    seconds = 30
+    if len(args_cfg) >= 2:
+        try:
+            seconds = int(args_cfg[1])
+        except ValueError:
+            seconds = 30
+
+    return ["waves", "--mode", mode, "--timer", str(seconds)]
+
 
 def _resolve_item_remove(args_cfg, user_input):
     raw = _norm(user_input)
@@ -286,6 +338,8 @@ def _build_args(args_cfg, user_input):
         return _resolve_item_remove(args_cfg, user_input)
     if marker == "__magic_choice__":
         return _resolve_magic(user_input)
+    if marker == "__waves_choice__":
+        return _resolve_waves(args_cfg, user_input)
     final = []
     for a in args_cfg:
         if a == "{input}":

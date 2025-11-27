@@ -84,6 +84,7 @@ DEFAULT_CONFIG = {
         "Sea waves: Medium (30s)": ["waves", "--mode", "medium", "--timer", "30"],
         "Sea waves: Big (30s)": ["waves", "--mode", "big",   "--timer", "30"],
         "Sea waves: Freak (30s)": ["waves", "--mode", "freak", "--timer", "30"],
+        "Sea waves (viewer choice)": ["__waves_choice__", "30"],
     }
 }
 
